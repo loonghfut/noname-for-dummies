@@ -25,7 +25,7 @@ jobs:
       run: docker save -o local-test-image.tar local-test-image:latest
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3  # Updated to v3
       with:
         name: build-artifact
         path: local-test-image.tar
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Download build artifacts
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3  # Updated to v3
       with:
         name: build-artifact
 
