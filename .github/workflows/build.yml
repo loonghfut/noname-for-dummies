@@ -1,4 +1,4 @@
-name: Build ARM Docker Image
+name: Build and Release ARM Docker Image
 
 on:
   push:
@@ -20,4 +20,45 @@ jobs:
       run: |
         docker buildx create --use
         docker buildx build --platform linux/arm64 -t local-test-image:latest .
+
+    - name: Save Docker image
+      run: docker save -o local-test-image.tar local-test-image:latest
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3  # Ensure the latest version is used
+      with:
+        name: build-artifact
+        path: local-test-image.tar
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3  # Ensure the latest version is used
+      with:
+        name: build-artifact
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          Release notes for ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: local-test-image.tar
+        asset_name: local-test-image.tar
+        asset_content_type: application/x-tar
 
