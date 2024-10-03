@@ -19,7 +19,7 @@ jobs:
     - name: Build ARM Image
       run: |
         docker buildx create --use
-        docker buildx build --platform linux/arm64 -t local-test-image:latest .
+        docker buildx build --platform linux/arm64 -t local-test-image:latest . --load
 
     - name: Save Docker image
       run: docker save -o local-test-image.tar local-test-image:latest
