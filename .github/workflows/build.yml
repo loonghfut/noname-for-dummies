@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  create:
+    tags:
+      - '*'
 
 jobs:
   build:
@@ -25,7 +28,7 @@ jobs:
       run: docker save -o local-test-image.tar local-test-image:latest
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3  # Ensure the latest version is used
+      uses: actions/upload-artifact@v3
       with:
         name: build-artifact
         path: local-test-image.tar
@@ -35,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Download build artifacts
-      uses: actions/download-artifact@v3  # Ensure the latest version is used
+      uses: actions/download-artifact@v3
       with:
         name: build-artifact
 
@@ -45,10 +48,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{ github.ref_name }}  # Use a valid tag name
+        release_name: Release ${{ github.ref_name }}
         body: |
-          Release notes for ${{ github.ref }}
+          Release notes for ${{ github.ref_name }}
         draft: false
         prerelease: false
 
@@ -61,4 +64,3 @@ jobs:
         asset_path: local-test-image.tar
         asset_name: local-test-image.tar
         asset_content_type: application/x-tar
-
